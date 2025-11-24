@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -32,11 +34,12 @@ class MemberServiceTest {
   private MemberRepository memberRepository;
 
   @Test
-  public void memberNotFound(){
+  public void suspendMember(){
     when(memberRepository.getMember("member-id"))
         .thenReturn(Member.builder()
             .id("member-id")
             .name("name")
+            .email("email")
             .suspended(false)
             .build());
 
@@ -49,6 +52,33 @@ class MemberServiceTest {
     assertTrue(member.isSuspended());
     assertEquals("name", member.getName());
     assertEquals("member-id", member.getId());
+    assertEquals("email", member.getEmail());
+  }
+
+  @Test
+  public void memberAlreadySuspended() {
+    when(memberRepository.getMember("member-id"))
+        .thenReturn(Member.builder()
+            .suspended(true)
+            .build());
+
+    Exception ex = assertThrows(RuntimeException.class, () -> memberService.suspendMember("member-id"));
+    assertEquals("Member already suspended", ex.getMessage());
+  }
+
+  @Test
+  public void memberNotExist() {
+    when(memberRepository.getMember("member-id"))
+        .thenReturn(null);
+
+    Exception ex = assertThrows(RuntimeException.class, () -> memberService.suspendMember("member-id"));
+    assertEquals("Member not found", ex.getMessage());
+  }
+
+  @Test
+  void noArgsConstructorCoverage() {
+    Member member = new Member();
+    assertNotNull(member);
   }
 
   @AfterEach
