@@ -13,4 +13,11 @@ class NumberHelperTest {
     assertFalse(NumberHelper.isOdd(2));
     assertTrue(NumberHelper.isOdd(3));
   }
+
+  @Test
+  @DisplayName("is even test")
+  public void isEvenTest() {
+    assertFalse(NumberHelper.isEven(3));
+    assertTrue(NumberHelper.isEven(2));
+  }
 }
